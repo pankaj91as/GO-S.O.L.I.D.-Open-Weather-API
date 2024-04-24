@@ -4,13 +4,14 @@ go 1.22.2
 
 require (
 	github.com/gorilla/mux v1.8.1
-	github.com/pankaj91as/open-weather-api/common/models v0.0.0-00010101000000-000000000000
-	github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-00010101000000-000000000000
-	github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-00010101000000-000000000000
+	github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240424190620-ad82edec4cb8
+	github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240424190620-ad82edec4cb8
+	github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240424194859-2e943472f429
 )
 
 require (
-	github.com/go-sql-driver/mysql v1.7.0 // indirect
+	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7 // indirect
