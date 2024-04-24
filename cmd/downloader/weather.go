@@ -3,7 +3,7 @@ package main
 import "time"
 
 type WeatherData struct {
-	ID            uint    `gorm:"primaryKey"`
+	ID            uint    `gorm:"primaryKey;<-:create"`
 	Lon           float64 `gorm:"index" json:"Coord.Lon"`
 	Lat           float64 `gorm:"index" json:"Coord.Lat"`
 	MainTemp      float64 `json:"Main.Temp"`

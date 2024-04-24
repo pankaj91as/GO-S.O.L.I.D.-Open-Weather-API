@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/op/go-logging"
-	"gorm.io/gorm"
 )
 
 var Log = logging.MustGetLogger("cronjob")
@@ -75,10 +74,8 @@ func insertData(dbConnection *SQLConnection, weatherCurrentData WeatherData) {
 		Log.Error(insertData.Error)
 	}
 
-	Log.Debug("Inserted Rows: ", insertData.RowsAffected)
-
 	var weatherSearch []WeatherData
-	findResult := ormdb.First(&weatherSearch, "Lat = ?", weatherCurrentData.Lat, "Lon = ?", weatherCurrentData.Lon)
+	findResult := ormdb.Where(&WeatherData{Lat: weatherCurrentData.Lat, Lon: weatherCurrentData.Lon}).First(&weatherSearch)
 	if findResult.RowsAffected == 0 {
 		findResult = ormdb.Create(&weatherCurrentData)
 	} else {
@@ -90,12 +87,4 @@ func insertData(dbConnection *SQLConnection, weatherCurrentData WeatherData) {
 	}
 
 	Log.Info("Data processed successfully...")
-}
-
-func migrateTable(ormdb *gorm.DB, tableName string, ns interface{}) {
-	defer wg.Done()
-	err := ormdb.Table(tableName).AutoMigrate(ns)
-	if err != nil {
-		Log.Fatal("Error auto-migrating schema: %v", err)
-	}
 }
