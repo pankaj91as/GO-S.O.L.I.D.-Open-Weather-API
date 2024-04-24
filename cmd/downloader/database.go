@@ -20,6 +20,8 @@ type SQLConnection struct {
 	username string
 	password string
 	database string
+	GormConn *gorm.DB
+	SqlCon   *sql.DB
 }
 
 func MySQLConnect(host string, port int, username string, password string, database string) *SQLConnection {
@@ -33,13 +35,6 @@ func MySQLConnect(host string, port int, username string, password string, datab
 }
 
 func (cs *SQLConnection) Connect() (*gorm.DB, *sql.DB, error) {
-	// dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", cs.username, cs.password, cs.host, cs.port, cs.database)
-	// db, err := sql.Open("mysql", dataSourceName)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// return db, nil
-
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", cs.username, cs.password, cs.host, cs.port, cs.database)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
@@ -53,4 +48,15 @@ func (cs *SQLConnection) Connect() (*gorm.DB, *sql.DB, error) {
 
 func Close(db *sql.DB) (err error) {
 	return db.Close()
+}
+
+func CreateTable(ormdb *gorm.DB, tableNames []string, ns interface{}) error {
+	for _, tableName := range tableNames {
+		err := ormdb.Table(string(tableName)).AutoMigrate(ns)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

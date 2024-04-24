@@ -4,16 +4,41 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"time"
 
+	"github.com/op/go-logging"
 	"gorm.io/gorm"
 )
 
+var Log = logging.MustGetLogger("cronjob")
+
 type OpenWeatherAPI struct{}
 
-func (ll *OpenWeatherAPI) FetchData(latitude float64, longitude float64) {
+func mapAPIResponseToWeatherData(APIResponse map[string]interface{}) WeatherData {
+	return WeatherData{
+		Lon:           APIResponse["coord"].(map[string]interface{})["lon"].(float64),
+		Lat:           APIResponse["coord"].(map[string]interface{})["lat"].(float64),
+		MainTemp:      APIResponse["main"].(map[string]interface{})["temp"].(float64),
+		MainTempMin:   APIResponse["main"].(map[string]interface{})["temp_min"].(float64),
+		MainTempMax:   APIResponse["main"].(map[string]interface{})["temp_max"].(float64),
+		MainPressure:  int(APIResponse["main"].(map[string]interface{})["pressure"].(float64)),
+		MainFeelsLike: APIResponse["main"].(map[string]interface{})["feels_like"].(float64),
+		MainHumidity:  int(APIResponse["main"].(map[string]interface{})["humidity"].(float64)),
+		WindSpeed:     APIResponse["wind"].(map[string]interface{})["speed"].(float64),
+		WindDeg:       int(APIResponse["wind"].(map[string]interface{})["deg"].(float64)),
+		CloudsAll:     int(APIResponse["clouds"].(map[string]interface{})["all"].(float64)),
+		SysCountry:    APIResponse["sys"].(map[string]interface{})["country"].(string),
+		SysSunrise:    time.Unix(int64(APIResponse["sys"].(map[string]interface{})["sunrise"].(float64))+int64(APIResponse["timezone"].(float64)), 0),
+		SysSunset:     time.Unix(int64(APIResponse["sys"].(map[string]interface{})["sunset"].(float64))+int64(APIResponse["timezone"].(float64)), 0),
+		Name:          APIResponse["name"].(string),
+		Base:          APIResponse["base"].(string),
+		Visibility:    int(APIResponse["visibility"].(float64)),
+		Dt:            time.Unix(int64(APIResponse["dt"].(float64)), 0),
+	}
+}
+
+func (ll *OpenWeatherAPI) SaveData(latitude float64, longitude float64, dbConnection *SQLConnection) {
 	// Waitgroup Done Signal
 	defer wg.Done()
 
@@ -35,94 +60,42 @@ func (ll *OpenWeatherAPI) FetchData(latitude float64, longitude float64) {
 		fmt.Println(err)
 	}
 
-	weatherHistoryData := WeatherDataHistory{
-		Lon:           APIResponse["coord"].(map[string]interface{})["lon"].(float64),
-		Lat:           APIResponse["coord"].(map[string]interface{})["lat"].(float64),
-		MainTemp:      APIResponse["main"].(map[string]interface{})["temp"].(float64),
-		MainTempMin:   APIResponse["main"].(map[string]interface{})["temp_min"].(float64),
-		MainTempMax:   APIResponse["main"].(map[string]interface{})["temp_max"].(float64),
-		MainPressure:  int(APIResponse["main"].(map[string]interface{})["pressure"].(float64)),
-		MainFeelsLike: APIResponse["main"].(map[string]interface{})["feels_like"].(float64),
-		MainHumidity:  int(APIResponse["main"].(map[string]interface{})["humidity"].(float64)),
-		WindSpeed:     APIResponse["wind"].(map[string]interface{})["speed"].(float64),
-		WindDeg:       int(APIResponse["wind"].(map[string]interface{})["deg"].(float64)),
-		CloudsAll:     int(APIResponse["clouds"].(map[string]interface{})["all"].(float64)),
-		SysCountry:    APIResponse["sys"].(map[string]interface{})["country"].(string),
-		SysSunrise:    time.Unix(int64(APIResponse["sys"].(map[string]interface{})["sunrise"].(float64))+int64(APIResponse["timezone"].(float64)), 0),
-		SysSunset:     time.Unix(int64(APIResponse["sys"].(map[string]interface{})["sunset"].(float64))+int64(APIResponse["timezone"].(float64)), 0),
-		Name:          APIResponse["name"].(string),
-		Base:          APIResponse["base"].(string),
-		Visibility:    int(APIResponse["visibility"].(float64)),
-		Dt:            time.Unix(int64(APIResponse["dt"].(float64)), 0),
-	}
-
-	weatherCurrentData := WeatherData{
-		Lon:           APIResponse["coord"].(map[string]interface{})["lon"].(float64),
-		Lat:           APIResponse["coord"].(map[string]interface{})["lat"].(float64),
-		MainTemp:      APIResponse["main"].(map[string]interface{})["temp"].(float64),
-		MainTempMin:   APIResponse["main"].(map[string]interface{})["temp_min"].(float64),
-		MainTempMax:   APIResponse["main"].(map[string]interface{})["temp_max"].(float64),
-		MainPressure:  int(APIResponse["main"].(map[string]interface{})["pressure"].(float64)),
-		MainFeelsLike: APIResponse["main"].(map[string]interface{})["feels_like"].(float64),
-		MainHumidity:  int(APIResponse["main"].(map[string]interface{})["humidity"].(float64)),
-		WindSpeed:     APIResponse["wind"].(map[string]interface{})["speed"].(float64),
-		WindDeg:       int(APIResponse["wind"].(map[string]interface{})["deg"].(float64)),
-		CloudsAll:     int(APIResponse["clouds"].(map[string]interface{})["all"].(float64)),
-		SysCountry:    APIResponse["sys"].(map[string]interface{})["country"].(string),
-		SysSunrise:    time.Unix(int64(APIResponse["sys"].(map[string]interface{})["sunrise"].(float64))+int64(APIResponse["timezone"].(float64)), 0),
-		SysSunset:     time.Unix(int64(APIResponse["sys"].(map[string]interface{})["sunset"].(float64))+int64(APIResponse["timezone"].(float64)), 0),
-		Name:          APIResponse["name"].(string),
-		Base:          APIResponse["base"].(string),
-		Visibility:    int(APIResponse["visibility"].(float64)),
-		Dt:            time.Unix(int64(APIResponse["dt"].(float64)), 0),
-	}
+	weatherCurrentData := mapAPIResponseToWeatherData(APIResponse)
 
 	// Forward Request to insert data
-	// Initialize MySQL connector
-	connector := MySQLConnect("localhost", 3306, "root", "Pankaj@569", "open_weather")
+	insertData(dbConnection, weatherCurrentData)
+}
 
-	// Connect to MySQL
-	ormdb, dbConn, err := connector.Connect()
-	if err != nil {
-		log.Fatal("Error connecting to MySQL:", err)
-	}
-	defer dbConn.Close()
-
-	// Verify Table Exist
-	var weatherHistoryTable []WeatherDataHistory
-	var weatherTable []WeatherData
-	historyTableCheck, weatherTableCheck := ormdb.First(&weatherHistoryTable), ormdb.First(&weatherTable)
-
-	if historyTableCheck != nil {
-		migrateTable(ormdb, &weatherHistoryTable)
-	}
-
-	if weatherTableCheck != nil {
-		migrateTable(ormdb, &weatherTable)
-	}
+func insertData(dbConnection *SQLConnection, weatherCurrentData WeatherData) {
+	ormdb := dbConnection.GormConn
 
 	// Insert Data into Weather Data History Table
-	insertData := ormdb.Create(&weatherHistoryData)
+	insertData := ormdb.Table("weather_data_history").Create(&weatherCurrentData)
 	if insertData.Error != nil {
-		fmt.Println(insertData.Error)
+		Log.Error(insertData.Error)
 	}
 
-	var weatherSearch = WeatherData{Lat: weatherHistoryData.Lat, Lon: weatherHistoryData.Lon}
-	findResult := ormdb.First(&weatherSearch)
+	Log.Debug("Inserted Rows: ", insertData.RowsAffected)
+
+	var weatherSearch []WeatherData
+	findResult := ormdb.First(&weatherSearch, "Lat = ?", weatherCurrentData.Lat, "Lon = ?", weatherCurrentData.Lon)
 	if findResult.RowsAffected == 0 {
 		findResult = ormdb.Create(&weatherCurrentData)
 	} else {
-		findResult = ormdb.Model(&WeatherData{}).Where("Lat = ?", weatherHistoryData.Lat).Where("Lon = ?", weatherHistoryData.Lon).Updates(&weatherCurrentData)
+		findResult = ormdb.Model(&WeatherData{}).Where("Lat = ?", weatherCurrentData.Lat).Where("Lon = ?", weatherCurrentData.Lon).Updates(&weatherCurrentData)
 	}
 
 	if findResult.Error != nil {
 		fmt.Println(findResult.Error)
 	}
+
+	Log.Info("Data processed successfully...")
 }
 
-func migrateTable(ormdb *gorm.DB, ns interface{}) {
-	err := ormdb.AutoMigrate(ns)
+func migrateTable(ormdb *gorm.DB, tableName string, ns interface{}) {
+	defer wg.Done()
+	err := ormdb.Table(tableName).AutoMigrate(ns)
 	if err != nil {
-		log.Fatalf("Error auto-migrating schema: %v", err)
+		Log.Fatal("Error auto-migrating schema: %v", err)
 	}
 }
