@@ -11,11 +11,17 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"github.com/pankaj91as/open-weather-api/app/controller"
 	"github.com/pankaj91as/open-weather-api/pkg/logger"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+	log.Fatal("Error loading .env file")
+	}
+
 	// Command Line Option To Set Server Gracefuls Shutdown Timeout
 	var (
 		wait         time.Duration

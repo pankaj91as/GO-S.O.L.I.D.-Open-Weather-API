@@ -4,6 +4,7 @@ go 1.22.2
 
 require (
 	github.com/gorilla/mux v1.8.1
+	github.com/joho/godotenv v1.5.1
 	github.com/pankaj91as/open-weather-api/app/controller v0.0.0-20240424190620-ad82edec4cb8
 	github.com/pankaj91as/open-weather-api/pkg/logger v0.0.0-20240424190620-ad82edec4cb8
 )

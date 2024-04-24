@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
+	"strconv"
 
 	"github.com/op/go-logging"
 	"gorm.io/driver/mysql"
@@ -56,7 +58,8 @@ func Close(db *sql.DB) (err error) {
 
 func InitDBConnection() *SQLConnection {
 	// Initialize MySQL connector
-	connector := MySQLConnect("localhost", 3306, "root", "Pankaj@569", "open_weather")
+	port, _ := strconv.Atoi(os.Getenv("MYSQL_PORT"))
+	connector := MySQLConnect(os.Getenv("MYSQL_HOST"), port, os.Getenv("MYSQL_USERNAME"), os.Getenv("MYSQL_PASSWORD"), "open_weather")
 
 	// Connect to MySQL
 	ormdb, dbConn, err := connector.Connect()
