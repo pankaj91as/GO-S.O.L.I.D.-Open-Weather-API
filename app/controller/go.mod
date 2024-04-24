@@ -3,8 +3,10 @@ module github.com/pankaj91as/open-weather-api/app/controller
 go 1.22.2
 
 require (
+	github.com/gorilla/mux v1.8.1
 	github.com/pankaj91as/open-weather-api/common/models v0.0.0-00010101000000-000000000000
 	github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-00010101000000-000000000000
+	github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -19,3 +21,5 @@ require (
 replace github.com/pankaj91as/open-weather-api/common/models => ../../common/models
 
 replace github.com/pankaj91as/open-weather-api/pkg/db => ../../pkg/db
+
+replace github.com/pankaj91as/open-weather-api/pkg/paggination => ../../pkg/paggination
