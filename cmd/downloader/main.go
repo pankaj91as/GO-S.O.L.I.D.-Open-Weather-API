@@ -18,7 +18,7 @@ func main() {
 	defer dbConnection.SqlCon.Close()
 
 	// Create Required DB
-	err := createRequiredDB(dbConnection)
+	err := createRequiredTables(dbConnection)
 	if err != nil {
 		Log.Fatal(err)
 	}
@@ -33,7 +33,7 @@ func main() {
 	wg.Wait()
 }
 
-func createRequiredDB(dbConnection *SQLConnection) error {
+func createRequiredTables(dbConnection *SQLConnection) error {
 	// Verify Table Exist
 	var weatherDataTable []WeatherData
 	tableNames := []string{"weather_data_history", "weather_data"}
