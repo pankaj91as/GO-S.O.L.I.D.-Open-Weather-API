@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -9,7 +10,23 @@ import (
 
 var wg sync.WaitGroup
 
+var (
+	DBhost	string
+	DBport	int
+	DBusername	string
+	DBpassword	string
+	DBname	string
+)
+
 func main() {
+	// Command Line Option To Set Server Gracefuls Shutdown Timeout
+	flag.StringVar(&DBhost, "db-host", "localhost", "database host domain/ip - e.g. localhost or 0.0.0.0")
+	flag.IntVar(&DBport, "db-port", 3306, "database port number - e.g. 3306")
+	flag.StringVar(&DBusername, "db-username", "root", "database user name - e.g. admin or root")
+	flag.StringVar(&DBpassword, "db-password", "Pankaj@569", "database user secret/password")
+	flag.StringVar(&DBname, "database", "open_weather", "database user secret/password")
+	flag.Parse()
+
 	// prepare cities & lat,long data
 	citiesArray := getCitiesWithLatLong()
 
@@ -46,7 +63,7 @@ func createRequiredTables(dbConnection *SQLConnection) error {
 
 func initDBConnection() *SQLConnection {
 	// Initialize MySQL connector
-	connector := MySQLConnect("localhost", 3306, "root", "Pankaj@569", "open_weather")
+	connector := MySQLConnect(DBhost, DBport, DBusername, DBpassword, DBname)
 
 	// Connect to MySQL
 	ormdb, dbConn, err := connector.Connect()

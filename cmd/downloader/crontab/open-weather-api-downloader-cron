@@ -1,0 +1,1 @@
+*/30 * * * * cd /Users/pankaj/Documents/Work/Open-Weather-API/cmd/downloader && go run . >> /var/log/open-weather-api-downloader-cron.log 2>&1
