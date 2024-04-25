@@ -8,14 +8,16 @@ import (
 	"time"
 
 	"github.com/op/go-logging"
+	"github.com/pankaj91as/open-weather-api/common/models"
+	"github.com/pankaj91as/open-weather-api/pkg/db"
 )
 
 var Log = logging.MustGetLogger("cronjob")
 
 type OpenWeatherAPI struct{}
 
-func mapAPIResponseToWeatherData(APIResponse map[string]interface{}) WeatherData {
-	return WeatherData{
+func mapAPIResponseToWeatherData(APIResponse map[string]interface{}) models.WeatherData {
+	return models.WeatherData{
 		Lon:           APIResponse["coord"].(map[string]interface{})["lon"].(float64),
 		Lat:           APIResponse["coord"].(map[string]interface{})["lat"].(float64),
 		MainTemp:      APIResponse["main"].(map[string]interface{})["temp"].(float64),
@@ -37,7 +39,7 @@ func mapAPIResponseToWeatherData(APIResponse map[string]interface{}) WeatherData
 	}
 }
 
-func (ll *OpenWeatherAPI) SaveData(latitude float64, longitude float64, dbConnection *SQLConnection) {
+func (ll *OpenWeatherAPI) SaveData(latitude float64, longitude float64, dbConnection *db.SQLConnection) {
 	// Waitgroup Done Signal
 	defer wg.Done()
 
@@ -65,7 +67,7 @@ func (ll *OpenWeatherAPI) SaveData(latitude float64, longitude float64, dbConnec
 	insertData(dbConnection, weatherCurrentData)
 }
 
-func insertData(dbConnection *SQLConnection, weatherCurrentData WeatherData) {
+func insertData(dbConnection *db.SQLConnection, weatherCurrentData models.WeatherData) {
 	ormdb := dbConnection.GormConn
 
 	// Insert Data into Weather Data History Table
@@ -74,12 +76,12 @@ func insertData(dbConnection *SQLConnection, weatherCurrentData WeatherData) {
 		Log.Error(insertData.Error)
 	}
 
-	var weatherSearch []WeatherData
-	findResult := ormdb.Where(&WeatherData{Lat: weatherCurrentData.Lat, Lon: weatherCurrentData.Lon}).First(&weatherSearch)
+	var weatherSearch []models.WeatherData
+	findResult := ormdb.Where(&models.WeatherData{Lat: weatherCurrentData.Lat, Lon: weatherCurrentData.Lon}).First(&weatherSearch)
 	if findResult.RowsAffected == 0 {
 		findResult = ormdb.Create(&weatherCurrentData)
 	} else {
-		findResult = ormdb.Model(&WeatherData{}).Where("Lat = ?", weatherCurrentData.Lat).Where("Lon = ?", weatherCurrentData.Lon).Updates(&weatherCurrentData)
+		findResult = ormdb.Model(&models.WeatherData{}).Where("Lat = ?", weatherCurrentData.Lat).Where("Lon = ?", weatherCurrentData.Lon).Updates(&weatherCurrentData)
 	}
 
 	if findResult.Error != nil {

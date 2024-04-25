@@ -6,6 +6,9 @@ import (
 	"io"
 	"os"
 	"sync"
+
+	"github.com/pankaj91as/open-weather-api/common/models"
+	"github.com/pankaj91as/open-weather-api/pkg/db"
 )
 
 var wg sync.WaitGroup
@@ -31,7 +34,7 @@ func main() {
 	citiesArray := getCitiesWithLatLong()
 
 	//  init database connection
-	dbConnection := initDBConnection()
+	dbConnection := db.InitDBConnection(DBhost, DBport, DBusername, DBpassword)
 	defer dbConnection.SqlCon.Close()
 
 	// Create Required DB
@@ -50,31 +53,15 @@ func main() {
 	wg.Wait()
 }
 
-func createRequiredTables(dbConnection *SQLConnection) error {
+func createRequiredTables(cs *db.SQLConnection) error {
 	// Verify Table Exist
-	var weatherDataTable []WeatherData
+	var weatherDataTable []models.WeatherData
 	tableNames := []string{"weather_data_history", "weather_data"}
-	createErr := CreateTable(dbConnection.GormConn, tableNames, &weatherDataTable)
+	createErr := db.CreateTable(cs.GormConn, tableNames, &weatherDataTable)
 	if createErr != nil {
 		return createErr
 	}
 	return nil
-}
-
-func initDBConnection() *SQLConnection {
-	// Initialize MySQL connector
-	connector := MySQLConnect(DBhost, DBport, DBusername, DBpassword, DBname)
-
-	// Connect to MySQL
-	ormdb, dbConn, err := connector.Connect()
-	if err != nil {
-		Log.Fatal("Error connecting to MySQL:", err)
-	}
-
-	return &SQLConnection{
-		GormConn: ormdb,
-		SqlCon:   dbConn,
-	}
 }
 
 func getCitiesWithLatLong() (returnCity []City) {

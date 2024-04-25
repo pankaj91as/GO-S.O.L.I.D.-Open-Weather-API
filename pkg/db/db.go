@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
-	"strconv"
 
 	"github.com/op/go-logging"
 	"gorm.io/driver/mysql"
@@ -17,7 +15,8 @@ var Log = logging.MustGetLogger("API")
 type DB interface {
 	Connect() (*gorm.DB, *sql.DB, error)
 	Close(db *sql.DB) error
-	InitDBConnection() *SQLConnection
+	InitDBConnection(host string, port int, username string, password string) *SQLConnection
+	CreateTable(ormdb *gorm.DB, tableNames []string, ns interface{}) error
 }
 
 type SQLConnection struct {
@@ -42,6 +41,8 @@ func MySQLConnect(host string, port int, username string, password string, datab
 
 func (cs *SQLConnection) Connect() (*gorm.DB, *sql.DB, error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", cs.username, cs.password, cs.host, cs.port, cs.database)
+	Log.Debug(dsn)
+	
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v", err)
@@ -56,11 +57,12 @@ func Close(db *sql.DB) (err error) {
 	return db.Close()
 }
 
-func InitDBConnection() *SQLConnection {
+func InitDBConnection(host string, port int, username string, password string) *SQLConnection {
 	// Initialize MySQL connector
-	port, _ := strconv.Atoi(os.Getenv("MYSQL_PORT"))
-	connector := MySQLConnect(os.Getenv("MYSQL_HOST"), port, os.Getenv("MYSQL_USERNAME"), os.Getenv("MYSQL_PASSWORD"), "open_weather")
-
+	// port, _ := strconv.Atoi(os.Getenv("MYSQL_PORT"))
+	// connector := MySQLConnect(os.Getenv("MYSQL_HOST"), port, os.Getenv("MYSQL_USERNAME"), os.Getenv("MYSQL_PASSWORD"), "open_weather")
+	connector := MySQLConnect(host, port, username, password, "open_weather")
+	
 	// Connect to MySQL
 	ormdb, dbConn, err := connector.Connect()
 	if err != nil {
@@ -71,4 +73,15 @@ func InitDBConnection() *SQLConnection {
 		GormConn: ormdb,
 		SqlCon:   dbConn,
 	}
+}
+
+func CreateTable(ormdb *gorm.DB, tableNames []string, ns interface{}) error {
+	for _, tableName := range tableNames {
+		err := ormdb.Table(string(tableName)).AutoMigrate(ns)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
