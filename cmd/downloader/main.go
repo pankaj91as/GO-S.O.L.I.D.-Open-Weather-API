@@ -14,11 +14,11 @@ import (
 var wg sync.WaitGroup
 
 var (
-	DBhost	string
-	DBport	int
-	DBusername	string
-	DBpassword	string
-	DBname	string
+	DBhost     string
+	DBport     int
+	DBusername string
+	DBpassword string
+	DBname     string
 )
 
 func main() {
@@ -68,7 +68,7 @@ func getCitiesWithLatLong() (returnCity []City) {
 	jsonParser := &CityJSONParser{}
 
 	// Open JSON file
-	jsonFile, err := os.Open("/cities.json")
+	jsonFile, err := os.Open("cities.json")
 	if err != nil {
 		fmt.Println("Error opening JSON file:", err)
 		return

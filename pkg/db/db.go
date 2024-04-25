@@ -40,7 +40,7 @@ func MySQLConnect(host string, port int, username string, password string, datab
 
 func (cs *SQLConnection) Connect() (*gorm.DB, *sql.DB, error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", cs.username, cs.password, cs.host, cs.port, cs.database)
-	Log.Fatal("Connection string: ",dsn)
+	Log.Info("Connection string: ", dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, nil, err
@@ -58,7 +58,7 @@ func Close(db *sql.DB) (err error) {
 func InitDBConnection(host string, port int, username string, password string) *SQLConnection {
 	// Initialize MySQL connector
 	connector := MySQLConnect(host, port, username, password, "open_weather")
-	
+
 	// Connect to MySQL
 	ormdb, dbConn, err := connector.Connect()
 	if err != nil {

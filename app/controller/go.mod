@@ -4,9 +4,10 @@ go 1.22.2
 
 require (
 	github.com/gorilla/mux v1.8.1
-	github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240425114842-0ac934b77f62
-	github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240425115425-6d55cfc710ab
-	github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240425104753-c0fd09243d3b
+	github.com/pankaj91as/open-weather-api/app/service v0.0.0-00010101000000-000000000000
+	github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240425202822-d79cd9c798b1
+	github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240425202822-d79cd9c798b1
+	github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240425202822-d79cd9c798b1
 )
 
 require (
@@ -24,3 +25,5 @@ replace github.com/pankaj91as/open-weather-api/common/models => ../../common/mod
 replace github.com/pankaj91as/open-weather-api/pkg/db => ../../pkg/db
 
 replace github.com/pankaj91as/open-weather-api/pkg/paggination => ../../pkg/paggination
+
+replace github.com/pankaj91as/open-weather-api/app/service => ../service
