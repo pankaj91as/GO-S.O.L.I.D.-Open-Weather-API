@@ -15,9 +15,9 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7 // indirect
-	github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240424190620-ad82edec4cb8 // indirect
-	github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240424190620-ad82edec4cb8 // indirect
-	github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240424194859-2e943472f429 // indirect
+	github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240425104753-c0fd09243d3b // indirect
+	github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240425104753-c0fd09243d3b // indirect
+	github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240425104753-c0fd09243d3b // indirect
 	gorm.io/driver/mysql v1.5.6 // indirect
 	gorm.io/gorm v1.25.9 // indirect
 )
