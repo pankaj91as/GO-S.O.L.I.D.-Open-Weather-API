@@ -23,10 +23,10 @@ var (
 
 func main() {
 	// Command Line Option To Set Server Gracefuls Shutdown Timeout
-	flag.StringVar(&DBhost, "db-host", "localhost", "database host domain/ip - e.g. localhost or 0.0.0.0")
+	flag.StringVar(&DBhost, "db-host", "0.0.0.0", "database host domain/ip - e.g. localhost or 0.0.0.0")
 	flag.IntVar(&DBport, "db-port", 3306, "database port number - e.g. 3306")
 	flag.StringVar(&DBusername, "db-username", "root", "database user name - e.g. admin or root")
-	flag.StringVar(&DBpassword, "db-password", "Pankaj@569", "database user secret/password")
+	flag.StringVar(&DBpassword, "db-password", "password", "database user secret/password")
 	flag.StringVar(&DBname, "database", "open_weather", "database user secret/password")
 	flag.Parse()
 
@@ -68,7 +68,7 @@ func getCitiesWithLatLong() (returnCity []City) {
 	jsonParser := &CityJSONParser{}
 
 	// Open JSON file
-	jsonFile, err := os.Open("cities.json")
+	jsonFile, err := os.Open("/cities.json")
 	if err != nil {
 		fmt.Println("Error opening JSON file:", err)
 		return

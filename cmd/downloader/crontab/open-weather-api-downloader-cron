@@ -1,1 +1,1 @@
-*/30 * * * * cd /Users/pankaj/Documents/Work/Open-Weather-API/cmd/downloader && go run . >> /var/log/open-weather-api-downloader-cron.log 2>&1
+* * * * * /usr/src/app/downloader-linux-amd64 -db-host=db -db-port=3306 -db-username=root -db-password=password -database=open_weather >> /var/log/open-weather-api-downloader-cron.log 2>&1

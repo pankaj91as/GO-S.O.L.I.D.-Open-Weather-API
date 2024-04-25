@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	"github.com/op/go-logging"
 	"gorm.io/driver/mysql"
@@ -40,12 +39,13 @@ func MySQLConnect(host string, port int, username string, password string, datab
 }
 
 func (cs *SQLConnection) Connect() (*gorm.DB, *sql.DB, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", cs.username, cs.password, cs.host, cs.port, cs.database)	
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", cs.username, cs.password, cs.host, cs.port, cs.database)
+	Log.Fatal("Connection string: ",dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("Error connecting to database: %v", err)
+		return nil, nil, err
 	}
-
+	Log.Info("Database connection successful!")
 	dbInstance, _ := db.DB()
 
 	return db, dbInstance, nil
