@@ -40,9 +40,7 @@ func MySQLConnect(host string, port int, username string, password string, datab
 }
 
 func (cs *SQLConnection) Connect() (*gorm.DB, *sql.DB, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", cs.username, cs.password, cs.host, cs.port, cs.database)
-	Log.Debug(dsn)
-	
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", cs.username, cs.password, cs.host, cs.port, cs.database)	
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v", err)

@@ -4,8 +4,8 @@ go 1.22.2
 
 require (
 	github.com/gorilla/mux v1.8.1
-	github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240425104753-c0fd09243d3b
-	github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240425104753-c0fd09243d3b
+	github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240425114842-0ac934b77f62
+	github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240425115425-6d55cfc710ab
 	github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240425104753-c0fd09243d3b
 )
 
