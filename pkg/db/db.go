@@ -59,8 +59,6 @@ func Close(db *sql.DB) (err error) {
 
 func InitDBConnection(host string, port int, username string, password string) *SQLConnection {
 	// Initialize MySQL connector
-	// port, _ := strconv.Atoi(os.Getenv("MYSQL_PORT"))
-	// connector := MySQLConnect(os.Getenv("MYSQL_HOST"), port, os.Getenv("MYSQL_USERNAME"), os.Getenv("MYSQL_PASSWORD"), "open_weather")
 	connector := MySQLConnect(host, port, username, password, "open_weather")
 	
 	// Connect to MySQL
