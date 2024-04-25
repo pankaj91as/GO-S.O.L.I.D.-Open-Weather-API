@@ -33,12 +33,12 @@ func Router() IRouter {
 func (r *router) InitRouter() *mux.Router {
 	mRouter := mux.NewRouter().StrictSlash(true)
 	mRouter.Use(logger.LoggingMiddleware)
-	InitWeatherRoutes(mRouter)
+	InitWeatherRoutes(mRouter, &controller.WeatherController{})
 	return mRouter
 }
 
-func InitWeatherRoutes(r *mux.Router) {
-	r.HandleFunc("/weather", controller.LandingPage)
-	r.HandleFunc("/weather/{location}", controller.FetchWeather).Methods(http.MethodGet)
-	r.HandleFunc("/weather/current/{location}", controller.FetchCurrentWeather).Methods(http.MethodGet)
+func InitWeatherRoutes(r *mux.Router, weatherController *controller.WeatherController) {
+	r.HandleFunc("/weather", weatherController.WeatherEndpoint)
+	r.HandleFunc("/weather/{location}", weatherController.GetWeatherHistoryData).Methods(http.MethodGet)
+	r.HandleFunc("/weather/current/{location}", weatherController.GetWeatherData).Methods(http.MethodGet)
 }
