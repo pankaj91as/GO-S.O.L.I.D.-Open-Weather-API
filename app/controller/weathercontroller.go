@@ -20,7 +20,8 @@ func (weatherController *WeatherController) WeatherEndpoint(w http.ResponseWrite
 
 func (weatherController *WeatherController) GetWeatherHistoryData(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	book, err := weatherController.GetWeatherHistoryByLocation(vars["location"], r)
+	q := r.URL.Query()
+	book, err := weatherController.GetWeatherHistoryByLocation(vars["location"], q)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -35,7 +36,8 @@ func (weatherController *WeatherController) GetWeatherHistoryData(w http.Respons
 
 func (weatherController *WeatherController) GetWeatherData(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	book, err := weatherController.GetCurrentWeatherByLocation(vars["location"], r)
+	q := r.URL.Query()
+	book, err := weatherController.GetCurrentWeatherByLocation(vars["location"], q)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
