@@ -19,8 +19,8 @@ github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240425230305-552e6
 github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240425230305-552e6e4f8144/go.mod h1:e+sCE7RY6h+cmHHhu0sdLa+NDGzMbbw5UVCZY0O9ou0=
 github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240425230305-552e6e4f8144 h1:0tDJ3dIgqa31SxMtqYUi367uAxYiIfGhWkfU2QNazZA=
 github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240425230305-552e6e4f8144/go.mod h1:u6QzVtG/ReBqzx5gaOZ2C2DHP+A6/QcAvJypaLsfGYM=
-github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240425230305-552e6e4f8144 h1:5BhQhKd41Zprb50h7E8BkvJIe2likUBbxX9vOTA2xyk=
-github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240425230305-552e6e4f8144/go.mod h1:CMIlv8f6Y53qS/qHrRc6veuucsqY0KexvEfMJVpGVMI=
+github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240425235456-74d9634ea02d h1:yPLIKzJvLg4mObsdjKFwK11WGH7t6ZRm0lXCECNPEm0=
+github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240425235456-74d9634ea02d/go.mod h1:CMIlv8f6Y53qS/qHrRc6veuucsqY0KexvEfMJVpGVMI=
 gorm.io/driver/mysql v1.5.6 h1:Ld4mkIickM+EliaQZQx3uOJDJHtrd70MxAUqWqlx3Y8=
 gorm.io/driver/mysql v1.5.6/go.mod h1:sEtPWMiqiN1N1cMXoXmBbd8C6/l+TESwriotuRRpkDM=
 gorm.io/gorm v1.25.7/go.mod h1:hbnx/Oo0ChWMn1BIhpy1oYozzpM15i4YPuHDmfYtwg8=

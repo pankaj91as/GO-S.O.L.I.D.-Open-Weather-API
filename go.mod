@@ -18,7 +18,7 @@ require (
 	github.com/pankaj91as/open-weather-api/app/service v0.0.0-20240425230305-552e6e4f8144 // indirect
 	github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240425230305-552e6e4f8144 // indirect
 	github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240425230305-552e6e4f8144 // indirect
-	github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240425230305-552e6e4f8144 // indirect
+	github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240425235456-74d9634ea02d // indirect
 	gorm.io/driver/mysql v1.5.6 // indirect
 	gorm.io/gorm v1.25.9 // indirect
 )
