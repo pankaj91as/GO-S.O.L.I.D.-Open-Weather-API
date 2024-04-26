@@ -2,6 +2,7 @@ version: "3"
 
 services:
   db:
+    container_name: "MySQL"
     image: "mysql:latest"
     command: "--default-authentication-plugin=mysql_native_password"
     environment:
@@ -13,43 +14,65 @@ services:
       - 33060:33060
     networks:
       - backend
+    healthcheck:
+      test:
+        ["CMD", "mysqladmin", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   downloader:
+    container_name: "CRON"
     build:
       dockerfile: ./downloader.Dockerfile
     networks:
       - backend
     depends_on:
-      - db
-    links:
-      - db
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "echo", "Hello"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   service:
+    container_name: "REST_API"
     build:
       dockerfile: ./service.Dockerfile
     depends_on:
-      - db
-      - downloader
+      db:
+        condition: service_healthy
+      downloader:
+        condition: service_healthy
     ports:
       - 8080:8080
     networks:
       - backend
-    links:
-      - db
-      - downloader
+    healthcheck:
+      test: ["CMD", "echo", "Hello"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   que:
+    container_name: "RabbitMQ"
     image: "rabbitmq:latest"
     ports:
       - 5672:5672
     depends_on:
-      - service
+      service:
+        condition: service_healthy
     networks:
       - backend
-    links:
-      - downloader
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5672"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   adminer:
+    container_name: "Adminer"
     image: adminer
     restart: always
     ports:
@@ -57,9 +80,8 @@ services:
     networks:
       - backend
     depends_on:
-      - db
-    links:
-      - db
+      db:
+        condition: service_healthy
 
 networks:
   backend:
