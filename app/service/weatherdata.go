@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/url"
 
 	"github.com/pankaj91as/open-weather-api/common/models"
@@ -21,7 +20,6 @@ type BookRepository struct {
 
 func (bookRepository *BookRepository) GetWeatherHistoryByLocation(location string, q url.Values) (res []byte, err error) {
 	var weatherHistoricalData []models.WeatherData
-	fmt.Println("------------------------", location)
 	bookRepository.DB.GormConn.Table("weather_data_history").Scopes(paggination.Paginate(q)).Where("name = ?", location).Find(&weatherHistoricalData)
 	re, err := json.Marshal(weatherHistoricalData)
 	if err != nil {

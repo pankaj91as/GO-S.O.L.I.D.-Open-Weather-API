@@ -15,8 +15,8 @@ github.com/op/go-logging v0.0.0-20160315200505-970db520ece7 h1:lDH9UUVJtmYCjyT0C
 github.com/op/go-logging v0.0.0-20160315200505-970db520ece7/go.mod h1:HzydrMdWErDVzsI23lYNej1Htcns9BCg93Dk0bBINWk=
 github.com/pankaj91as/open-weather-api/app/service v0.0.0-20240426002601-219e8aef7171 h1:2j9d+qOcBMGyV0JXp8rEDNYxLGfgQ4O5FYzqLdAH8CU=
 github.com/pankaj91as/open-weather-api/app/service v0.0.0-20240426002601-219e8aef7171/go.mod h1:Nn1hTf7hQeUZ+vEcOu8q6REpI6bQojdihr4BMgts4fE=
-github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240426000544-42c73a1ee741 h1:DVCIfBQuNxQTxsMMKC6m26q3R/ctjuFW0S9mREVg4Gc=
-github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240426000544-42c73a1ee741/go.mod h1:e+sCE7RY6h+cmHHhu0sdLa+NDGzMbbw5UVCZY0O9ou0=
+github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240426003418-12d4da1e124e h1:5/Kd85GxkBHT/b9b5rmL3fJ1q1jcoDTEL0oDA3m+LB4=
+github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240426003418-12d4da1e124e/go.mod h1:e+sCE7RY6h+cmHHhu0sdLa+NDGzMbbw5UVCZY0O9ou0=
 github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240426000544-42c73a1ee741 h1:qDTrQEkkoNgfCTU19SmxRSGeAonQ1mt9JdLKFE6mmQU=
 github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240426000544-42c73a1ee741/go.mod h1:u6QzVtG/ReBqzx5gaOZ2C2DHP+A6/QcAvJypaLsfGYM=
 github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240426000544-42c73a1ee741 h1:WMVw32S5W84zP5VLIlwwq7zBhhTjeRfR9GsmTGOKayQ=
