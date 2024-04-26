@@ -4,7 +4,7 @@ go 1.22.2
 
 require (
 	github.com/gorilla/mux v1.8.1
-	github.com/pankaj91as/open-weather-api/app/service v0.0.0-20240425230305-552e6e4f8144
+	github.com/pankaj91as/open-weather-api/app/service v0.0.0-20240426000203-65257dfca010
 )
 
 require (
