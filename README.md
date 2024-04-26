@@ -2,6 +2,10 @@
 
 Using SOLID Principle We have integrated Open Weather API in Go.
 
+## Clone repository
+
+git clone https://github.com/pankaj91as/Open-Weather-API.git
+
 ## Create Docker image from Linux Build
 
 docker build -f Dockerfile.downloader -t weatherdata-downloader .
