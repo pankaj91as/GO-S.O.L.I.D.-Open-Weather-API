@@ -1,10 +1,9 @@
 package main
 
 import (
+	"configs"
 	"flag"
 	"fmt"
-	"io"
-	"os"
 	"sync"
 
 	"db"
@@ -66,21 +65,7 @@ func createRequiredTables(cs *db.SQLConnection) error {
 
 func getCitiesWithLatLong() (returnCity []City) {
 	jsonParser := &CityJSONParser{}
-
-	// Open JSON file
-	jsonFile, err := os.Open("cities.json")
-	if err != nil {
-		fmt.Println("Error opening JSON file:", err)
-		return
-	}
-	defer jsonFile.Close()
-
-	// Read JSON File
-	jsonData, err := io.ReadAll(jsonFile)
-	if err != nil {
-		fmt.Println("Error reading JSON data:", err)
-		return
-	}
+	jsonData := []byte(configs.CitiesJson)
 
 	// Parse JSON using the JSON parser
 	cities, err := jsonParser.ParseJSON(jsonData)
