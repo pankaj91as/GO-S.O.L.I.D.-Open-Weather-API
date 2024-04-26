@@ -15,7 +15,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7 // indirect
-	github.com/pankaj91as/open-weather-api/app/service v0.0.0-20240426000203-65257dfca010 // indirect
+	github.com/pankaj91as/open-weather-api/app/service v0.0.0-20240426002601-219e8aef7171 // indirect
 	github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240426000544-42c73a1ee741 // indirect
 	github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240426000544-42c73a1ee741 // indirect
 	github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240426000544-42c73a1ee741 // indirect
