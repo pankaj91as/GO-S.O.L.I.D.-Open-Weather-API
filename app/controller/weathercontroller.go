@@ -3,6 +3,7 @@ package controller
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"service"
@@ -22,7 +23,7 @@ func (weatherController *WeatherController) WeatherEndpoint(w http.ResponseWrite
 func (weatherController *WeatherController) GetWeatherHistoryData(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	q := r.URL.Query()
-	book, err := weatherController.GetWeatherHistoryByLocation(vars["location"], q)
+	weatherData, err := weatherController.GetWeatherHistoryByLocation(vars["location"], q)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -32,13 +33,15 @@ func (weatherController *WeatherController) GetWeatherHistoryData(w http.Respons
 		}
 		return
 	}
-	weatherController.RespondWithJSON(w, http.StatusOK, book)
+	n := len(weatherData)
+	s := string(weatherData[:n])
+	fmt.Fprint(w, s)
 }
 
 func (weatherController *WeatherController) GetWeatherData(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	q := r.URL.Query()
-	book, err := weatherController.GetCurrentWeatherByLocation(vars["location"], q)
+	weatherData, err := weatherController.GetCurrentWeatherByLocation(vars["location"], q)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -48,5 +51,7 @@ func (weatherController *WeatherController) GetWeatherData(w http.ResponseWriter
 		}
 		return
 	}
-	weatherController.RespondWithJSON(w, http.StatusOK, book)
+	n := len(weatherData)
+	s := string(weatherData[:n])
+	fmt.Fprint(w, s)
 }
