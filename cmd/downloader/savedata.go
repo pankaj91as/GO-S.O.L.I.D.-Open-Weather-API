@@ -7,9 +7,10 @@ import (
 	"net/http"
 	"time"
 
+	"db"
+	"models"
+
 	"github.com/op/go-logging"
-	"github.com/pankaj91as/open-weather-api/common/models"
-	"github.com/pankaj91as/open-weather-api/pkg/db"
 )
 
 var Log = logging.MustGetLogger("cronjob")

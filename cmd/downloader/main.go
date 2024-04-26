@@ -7,8 +7,8 @@ import (
 	"os"
 	"sync"
 
-	"github.com/pankaj91as/open-weather-api/common/models"
-	"github.com/pankaj91as/open-weather-api/pkg/db"
+	"db"
+	"models"
 )
 
 var wg sync.WaitGroup
