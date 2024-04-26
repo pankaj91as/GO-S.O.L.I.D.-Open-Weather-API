@@ -3,6 +3,7 @@ module main
 go 1.22.2
 
 require (
+	configs v0.0.0-00010101000000-000000000000
 	db v0.0.0-20240425115425-6d55cfc710ab
 	models v0.0.0-20240425114842-0ac934b77f62
 )
@@ -23,3 +24,5 @@ require (
 replace models => ../../common/models
 
 replace db => ../../pkg/db
+
+replace configs => ../../common/configs

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"configs"
 	"db"
 	"models"
 
@@ -45,7 +46,7 @@ func (ll *OpenWeatherAPI) SaveData(latitude float64, longitude float64, dbConnec
 	defer wg.Done()
 
 	// Create API Endpoint
-	endpoint := fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?lat=%v&lon=%v&appid=%v", latitude, longitude, "3e7e4cafc4f58311c36ef0e546a7fecd")
+	endpoint := fmt.Sprintf(configs.OpenWeatherAPIEndpoint+"?lat=%v&lon=%v&appid=%v", latitude, longitude, configs.OpenWeatherAPIAPIKEY)
 	response, err := http.Get(endpoint)
 	if err != nil {
 		fmt.Println(err)
