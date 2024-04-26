@@ -35,6 +35,8 @@ func (weatherController *WeatherController) GetWeatherHistoryData(w http.Respons
 	}
 	n := len(weatherData)
 	s := string(weatherData[:n])
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, s)
 }
 
@@ -53,5 +55,7 @@ func (weatherController *WeatherController) GetWeatherData(w http.ResponseWriter
 	}
 	n := len(weatherData)
 	s := string(weatherData[:n])
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, s)
 }
