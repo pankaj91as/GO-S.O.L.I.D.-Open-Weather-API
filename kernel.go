@@ -1,10 +1,10 @@
 package main
 
 import (
+	"db"
 	"sync"
 
 	"controller"
-	"db"
 	"service"
 )
 
@@ -20,7 +20,7 @@ var (
 	kernelOnce sync.Once
 )
 
-// Singleton
+// Singleton Pattern
 func Kernel() IKernel {
 	if k == nil {
 		kernelOnce.Do(func() {
@@ -37,7 +37,7 @@ func (k *kernel) InjectDB() (d *db.SQLConnection) {
 }
 
 func (k *kernel) InjectWeatherController(d *db.SQLConnection) controller.WeatherController {
-	WeatherService := &service.BookService{DB: d}
+	WeatherService := &service.WeatherService{DB: d}
 	WeatherController := &controller.WeatherController{IWeatherService: WeatherService, ICommonController: &controller.CommonController{}}
 	return *WeatherController
 }

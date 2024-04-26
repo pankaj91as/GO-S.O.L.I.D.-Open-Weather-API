@@ -39,7 +39,7 @@ func main() {
 	// Create Required DB
 	err := createRequiredTables(dbConnection)
 	if err != nil {
-		Log.Fatal(err)
+		Log.Error(err)
 	}
 
 	// Print cities
