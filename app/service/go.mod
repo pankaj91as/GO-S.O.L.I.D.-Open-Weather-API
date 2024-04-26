@@ -3,9 +3,9 @@ module github.com/pankaj91as/open-weather-api/app/service
 go 1.22.2
 
 require (
-	github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240425230305-552e6e4f8144
-	github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240425230305-552e6e4f8144
-	github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240425235456-74d9634ea02d
+	github.com/pankaj91as/open-weather-api/common/models v0.0.0-20240426000544-42c73a1ee741
+	github.com/pankaj91as/open-weather-api/pkg/db v0.0.0-20240426000544-42c73a1ee741
+	github.com/pankaj91as/open-weather-api/pkg/paggination v0.0.0-20240426000544-42c73a1ee741
 )
 
 require (
