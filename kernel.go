@@ -11,14 +11,13 @@ import (
 type kernel struct{}
 
 type IKernel interface {
-	InjectDB()
-	InjectWeatherController() controller.WeatherController
+	InjectDB() *db.SQLConnection
+	InjectWeatherController(*db.SQLConnection) controller.WeatherController
 }
 
 var (
 	k          *kernel
 	kernelOnce sync.Once
-	err        error
 )
 
 // Singleton
@@ -31,13 +30,14 @@ func Kernel() IKernel {
 	return k
 }
 
-func (k *kernel) InjectDB() {
+func (k *kernel) InjectDB() (d *db.SQLConnection) {
 	// Implement DB Connection
-	db.InitDBConnection(DBhost, DBport, DBusername, DBpassword)
+	database := db.InitDBConnection(DBhost, DBport, DBusername, DBpassword)
+	return database
 }
 
-func (k *kernel) InjectWeatherController() controller.WeatherController {
-	WeatherService := &service.BookService{}
+func (k *kernel) InjectWeatherController(d *db.SQLConnection) controller.WeatherController {
+	WeatherService := &service.BookService{DB: d}
 	WeatherController := &controller.WeatherController{IWeatherService: WeatherService, ICommonController: &controller.CommonController{}}
 	return *WeatherController
 }

@@ -35,13 +35,14 @@ func (r *router) InitRouter() *mux.Router {
 	mRouter := mux.NewRouter().StrictSlash(true)
 	mRouter.Use(logger.LoggingMiddleware)
 	kernel := Kernel()
-	weatherController := kernel.InjectWeatherController()
+	d := kernel.InjectDB()
+	weatherController := kernel.InjectWeatherController(d)
 	InitWeatherRoutes(mRouter, &weatherController)
 	return mRouter
 }
 
 func InitWeatherRoutes(r *mux.Router, weatherController *controller.WeatherController) {
-	r.HandleFunc("/weather", weatherController.WeatherEndpoint)
+	r.HandleFunc("/weather", weatherController.WeatherEndpoint).Methods(http.MethodGet)
 	r.HandleFunc("/weather/{location}", weatherController.GetWeatherHistoryData).Methods(http.MethodGet)
 	r.HandleFunc("/weather/current/{location}", weatherController.GetWeatherData).Methods(http.MethodGet)
 }
