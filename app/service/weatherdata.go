@@ -7,7 +7,7 @@ import (
 	"models"
 	"paggination"
 
-	"gorm.io/gorm"
+	"db"
 )
 
 type IWeatherService interface {
@@ -16,12 +16,12 @@ type IWeatherService interface {
 }
 
 type BookService struct {
-	DB *gorm.DB
+	DB *db.SQLConnection
 }
 
 func (bookRepository *BookService) GetWeatherHistoryByLocation(location string, q url.Values) (res []byte, err error) {
 	var weatherHistoricalData []models.WeatherData
-	bookRepository.DB.Table("weather_data_history").Scopes(paggination.Paginate(q)).Where("name = ?", location).Find(&weatherHistoricalData)
+	bookRepository.DB.GormConn.Table("weather_data_history").Scopes(paggination.Paginate(q)).Where("name = ?", location).Find(&weatherHistoricalData)
 	re, err := json.Marshal(weatherHistoricalData)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func (bookRepository *BookService) GetWeatherHistoryByLocation(location string, 
 
 func (bookRepository *BookService) GetCurrentWeatherByLocation(location string, q url.Values) (res []byte, err error) {
 	var weatherCurrentData []models.WeatherData
-	bookRepository.DB.Scopes(paggination.Paginate(q)).Where("name = ?", location).Find(&weatherCurrentData)
+	bookRepository.DB.GormConn.Scopes(paggination.Paginate(q)).Where("name = ?", location).Find(&weatherCurrentData)
 	re, err := json.Marshal(weatherCurrentData)
 	if err != nil {
 		return nil, err

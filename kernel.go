@@ -4,12 +4,14 @@ import (
 	"sync"
 
 	"controller"
+	"db"
 	"service"
 )
 
 type kernel struct{}
 
 type IKernel interface {
+	InjectDB()
 	InjectWeatherController() controller.WeatherController
 }
 
@@ -27,6 +29,11 @@ func Kernel() IKernel {
 		})
 	}
 	return k
+}
+
+func (k *kernel) InjectDB() {
+	// Implement DB Connection
+	db.InitDBConnection(DBhost, DBport, DBusername, DBpassword)
 }
 
 func (k *kernel) InjectWeatherController() controller.WeatherController {

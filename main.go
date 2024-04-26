@@ -10,13 +10,23 @@ import (
 	"os/signal"
 	"time"
 
-	"db"
-
 	"github.com/joho/godotenv"
 	"github.com/op/go-logging"
 )
 
 var Log = logging.MustGetLogger("rest")
+
+var (
+	Wait         time.Duration
+	WriteTimeout time.Duration
+	ReadTimeout  time.Duration
+	IdleTimeout  time.Duration
+	DBhost       string
+	DBport       int
+	DBusername   string
+	DBpassword   string
+	DBname       string
+)
 
 func main() {
 	err := godotenv.Load()
@@ -25,18 +35,7 @@ func main() {
 	}
 
 	// Command Line Option To Set Server Gracefuls Shutdown Timeout
-	var (
-		wait         time.Duration
-		WriteTimeout time.Duration
-		ReadTimeout  time.Duration
-		IdleTimeout  time.Duration
-		DBhost       string
-		DBport       int
-		DBusername   string
-		DBpassword   string
-		DBname       string
-	)
-	flag.DurationVar(&wait, "graceful-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
+	flag.DurationVar(&Wait, "graceful-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
 	flag.DurationVar(&WriteTimeout, "write-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
 	flag.DurationVar(&ReadTimeout, "read-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
 	flag.DurationVar(&IdleTimeout, "ideal-timeout", time.Second*60, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
@@ -58,9 +57,6 @@ func main() {
 		Handler:      Router().InitRouter(),
 	}
 
-	// Implement DB Connection
-	dbConnection := db.InitDBConnection(DBhost, DBport, DBusername, DBpassword)
-
 	// Run our server in a goroutine so that it doesn't block.
 	go func() {
 		fmt.Println("Server starting on ", srv.Addr)
@@ -72,9 +68,8 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c
-	ctx, cancel := context.WithTimeout(context.Background(), wait)
+	ctx, cancel := context.WithTimeout(context.Background(), Wait)
 	defer cancel()
-	defer dbConnection.SqlCon.Close()
 	srv.Shutdown(ctx)
 	log.Println("shutting down")
 	os.Exit(0)
