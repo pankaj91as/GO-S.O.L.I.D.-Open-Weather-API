@@ -10,8 +10,13 @@ import (
 	"os/signal"
 	"time"
 
+	"db"
+
 	"github.com/joho/godotenv"
+	"github.com/op/go-logging"
 )
+
+var Log = logging.MustGetLogger("rest")
 
 func main() {
 	err := godotenv.Load()
@@ -25,11 +30,23 @@ func main() {
 		WriteTimeout time.Duration
 		ReadTimeout  time.Duration
 		IdleTimeout  time.Duration
+		DBhost       string
+		DBport       int
+		DBusername   string
+		DBpassword   string
+		DBname       string
 	)
 	flag.DurationVar(&wait, "graceful-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
 	flag.DurationVar(&WriteTimeout, "write-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
 	flag.DurationVar(&ReadTimeout, "read-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
 	flag.DurationVar(&IdleTimeout, "ideal-timeout", time.Second*60, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
+
+	// Command Line Option To Set DB Credentials
+	flag.StringVar(&DBhost, "db-host", "0.0.0.0", "database host domain/ip - e.g. localhost or 0.0.0.0")
+	flag.IntVar(&DBport, "db-port", 3306, "database port number - e.g. 3306")
+	flag.StringVar(&DBusername, "db-username", "root", "database user name - e.g. admin or root")
+	flag.StringVar(&DBpassword, "db-password", "password", "database user secret/password")
+	flag.StringVar(&DBname, "database", "open_weather", "database user secret/password")
 	flag.Parse()
 
 	// Implement Server
@@ -40,6 +57,9 @@ func main() {
 		IdleTimeout:  IdleTimeout,
 		Handler:      Router().InitRouter(),
 	}
+
+	// Implement DB Connection
+	dbConnection := db.InitDBConnection(DBhost, DBport, DBusername, DBpassword)
 
 	// Run our server in a goroutine so that it doesn't block.
 	go func() {
@@ -54,6 +74,7 @@ func main() {
 	<-c
 	ctx, cancel := context.WithTimeout(context.Background(), wait)
 	defer cancel()
+	defer dbConnection.SqlCon.Close()
 	srv.Shutdown(ctx)
 	log.Println("shutting down")
 	os.Exit(0)

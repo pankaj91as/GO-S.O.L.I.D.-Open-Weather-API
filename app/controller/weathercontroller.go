@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"service"
+
 	"github.com/gorilla/mux"
-	"github.com/pankaj91as/open-weather-api/app/service"
 )
 
 type WeatherController struct {

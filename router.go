@@ -4,9 +4,10 @@ import (
 	"net/http"
 	"sync"
 
+	"controller"
+	"logger"
+
 	"github.com/gorilla/mux"
-	"github.com/pankaj91as/open-weather-api/app/controller"
-	"github.com/pankaj91as/open-weather-api/pkg/logger"
 )
 
 type router struct{}
@@ -33,7 +34,9 @@ func Router() IRouter {
 func (r *router) InitRouter() *mux.Router {
 	mRouter := mux.NewRouter().StrictSlash(true)
 	mRouter.Use(logger.LoggingMiddleware)
-	InitWeatherRoutes(mRouter, &controller.WeatherController{})
+	kernel := Kernel()
+	weatherController := kernel.InjectWeatherController()
+	InitWeatherRoutes(mRouter, &weatherController)
 	return mRouter
 }
 
