@@ -4,6 +4,7 @@ import (
 	"configs"
 	"flag"
 	"fmt"
+	queue "rabbitqueue"
 	"sync"
 
 	"db"
@@ -18,6 +19,10 @@ var (
 	DBusername string
 	DBpassword string
 	DBname     string
+	MQhost     string
+	MQport     int
+	MQusername string
+	MQpassword string
 )
 
 func main() {
@@ -27,6 +32,12 @@ func main() {
 	flag.StringVar(&DBusername, "db-username", "root", "database user name - e.g. admin or root")
 	flag.StringVar(&DBpassword, "db-password", "password", "database user secret/password")
 	flag.StringVar(&DBname, "database", "open_weather", "database user secret/password")
+
+	// Command line option for rabbit message que
+	flag.StringVar(&MQhost, "mq-host", "localhost", "RabbitMQ host domain/ip - e.g. localhost or 0.0.0.0")
+	flag.IntVar(&MQport, "mq-port", 5672, "RabbitMQ port number - e.g. 3306")
+	flag.StringVar(&MQusername, "mq-username", "guest", "RabbitMQ user name - e.g. admin or root")
+	flag.StringVar(&MQpassword, "mq-password", "guest", "RabbitMQ user secret/password")
 	flag.Parse()
 
 	// prepare cities & lat,long data
@@ -41,6 +52,10 @@ func main() {
 	if err != nil {
 		Log.Error(err)
 	}
+
+	//  init Rabbit Queue connection
+	mqConnection := queue.InitQueueConnection(MQhost, MQport, MQusername, MQpassword)
+	defer mqConnection.MQCon.Close()
 
 	// Print cities
 	for _, city := range citiesArray {
