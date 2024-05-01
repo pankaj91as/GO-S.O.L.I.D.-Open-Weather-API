@@ -4,11 +4,16 @@ import (
 	"configs"
 	"flag"
 	"fmt"
+	"log"
+	"os"
 	queue "rabbitqueue"
+	"strconv"
 	"sync"
 
 	"db"
 	"models"
+
+	"github.com/joho/godotenv"
 )
 
 var wg sync.WaitGroup
@@ -26,18 +31,25 @@ var (
 )
 
 func main() {
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	// Command Line Option To Set Server Gracefuls Shutdown Timeout
-	flag.StringVar(&DBhost, "db-host", "0.0.0.0", "database host domain/ip - e.g. localhost or 0.0.0.0")
-	flag.IntVar(&DBport, "db-port", 3306, "database port number - e.g. 3306")
-	flag.StringVar(&DBusername, "db-username", "root", "database user name - e.g. admin or root")
-	flag.StringVar(&DBpassword, "db-password", "password", "database user secret/password")
-	flag.StringVar(&DBname, "database", "open_weather", "database user secret/password")
+	MYSQL_PORT, _ := strconv.Atoi(os.Getenv("MYSQL_PORT"))
+	flag.StringVar(&DBhost, "db-host", os.Getenv("MYSQL_HOST"), "database host domain/ip - e.g. localhost or 0.0.0.0")
+	flag.IntVar(&DBport, "db-port", MYSQL_PORT, "database port number - e.g. 3306")
+	flag.StringVar(&DBusername, "db-username", os.Getenv("MYSQL_USERNAME"), "database user name - e.g. admin or root")
+	flag.StringVar(&DBpassword, "db-password", os.Getenv("MYSQL_PASSWORD"), "database user secret/password")
+	flag.StringVar(&DBname, "database", os.Getenv("DB_USE"), "database user secret/password")
 
 	// Command line option for rabbit message que
-	flag.StringVar(&MQhost, "mq-host", "localhost", "RabbitMQ host domain/ip - e.g. localhost or 0.0.0.0")
-	flag.IntVar(&MQport, "mq-port", 5672, "RabbitMQ port number - e.g. 3306")
-	flag.StringVar(&MQusername, "mq-username", "guest", "RabbitMQ user name - e.g. admin or root")
-	flag.StringVar(&MQpassword, "mq-password", "guest", "RabbitMQ user secret/password")
+	RABBIT_PORT, _ := strconv.Atoi(os.Getenv("RABBIT_PORT"))
+	flag.StringVar(&MQhost, "mq-host", os.Getenv("RABBIT_HOST"), "RabbitMQ host domain/ip - e.g. localhost or 0.0.0.0")
+	flag.IntVar(&MQport, "mq-port", RABBIT_PORT, "RabbitMQ port number - e.g. 3306")
+	flag.StringVar(&MQusername, "mq-username", os.Getenv("RABBIT_USERNAME"), "RabbitMQ user name - e.g. admin or root")
+	flag.StringVar(&MQpassword, "mq-password", os.Getenv("RABBIT_PASSWORD"), "RabbitMQ user secret/password")
 	flag.Parse()
 
 	// prepare cities & lat,long data
@@ -48,20 +60,31 @@ func main() {
 	defer dbConnection.SqlCon.Close()
 
 	// Create Required DB
-	err := createRequiredTables(dbConnection)
+	err = createRequiredTables(dbConnection)
 	if err != nil {
 		Log.Error(err)
 	}
 
 	//  init Rabbit Queue connection
-	mqConnection := queue.InitQueueConnection(MQhost, MQport, MQusername, MQpassword)
-	defer mqConnection.MQCon.Close()
+	MqConnection := queue.InitQueueConnection(MQhost, MQport, MQusername, MQpassword)
+
+	// Create MQ Channel
+	channel := queue.CreateMQChannel(MqConnection.MQCon)
+	if err != nil {
+		Log.Error(err)
+	}
+
+	// Create Exchange For Message Queue
+	queue.DefineExchange(channel.MQChan, os.Getenv("MQ_TOPIC"))
+
+	// Close Message Queue Connection
+	// defer MqConnection.MQCon.Close()
 
 	// Print cities
 	for _, city := range citiesArray {
 		wg.Add(1)
 		openWeatherAPI := &OpenWeatherAPI{}
-		go openWeatherAPI.SaveData(city.Latitude, city.Longitude, dbConnection)
+		go openWeatherAPI.SaveData(city.Latitude, city.Longitude, dbConnection, channel)
 	}
 
 	wg.Wait()

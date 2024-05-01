@@ -1,15 +1,18 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"time"
 
 	"configs"
 	"db"
 	"models"
+	queue "rabbitqueue"
 
 	"github.com/op/go-logging"
 )
@@ -41,7 +44,7 @@ func mapAPIResponseToWeatherData(APIResponse map[string]interface{}) models.Weat
 	}
 }
 
-func (ll *OpenWeatherAPI) SaveData(latitude float64, longitude float64, dbConnection *db.SQLConnection) {
+func (ll *OpenWeatherAPI) SaveData(latitude float64, longitude float64, dbConnection *db.SQLConnection, MqConnection *queue.QueueConnection) {
 	// Waitgroup Done Signal
 	defer wg.Done()
 
@@ -66,10 +69,10 @@ func (ll *OpenWeatherAPI) SaveData(latitude float64, longitude float64, dbConnec
 	weatherCurrentData := mapAPIResponseToWeatherData(APIResponse)
 
 	// Forward Request to insert data
-	insertData(dbConnection, weatherCurrentData)
+	insertData(dbConnection, weatherCurrentData, MqConnection)
 }
 
-func insertData(dbConnection *db.SQLConnection, weatherCurrentData models.WeatherData) {
+func insertData(dbConnection *db.SQLConnection, weatherCurrentData models.WeatherData, MqConnection *queue.QueueConnection) {
 	ormdb := dbConnection.GormConn
 
 	// Insert Data into Weather Data History Table
@@ -83,6 +86,8 @@ func insertData(dbConnection *db.SQLConnection, weatherCurrentData models.Weathe
 	if findResult.RowsAffected == 0 {
 		findResult = ormdb.Create(&weatherCurrentData)
 	} else {
+		body := "Hello World!"
+		queue.PublishMessage(MqConnection.MQChan, context.Background(), os.Getenv("MQ_TOPIC"), body)
 		findResult = ormdb.Model(&models.WeatherData{}).Where("Lat = ?", weatherCurrentData.Lat).Where("Lon = ?", weatherCurrentData.Lon).Updates(&weatherCurrentData)
 	}
 

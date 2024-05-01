@@ -1,6 +1,7 @@
 package queue
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -12,9 +13,11 @@ var Log = logging.MustGetLogger("API")
 
 type IQueue interface {
 	ConnectMQ() (c *amqp.Connection, e error)
-	CreateMQChannel(cs *amqp.Connection) (c *amqp.Channel, e error)
-	CloseMQ(mq *amqp.Connection) (err error)
+	CreateMQChannel(cs *QueueConnection) *QueueConnection
+	CloseMQ() (err error)
 	QueueConnect(host string, port int, username string, password string) *QueueConnection
+	DefineExchange(ch *QueueConnection, topic string)
+	PublishMessage(ch *amqp.Channel, ctx context.Context) (e error)
 }
 
 type QueueConnection struct {
@@ -58,26 +61,49 @@ func InitQueueConnection(host string, port int, username string, password string
 		Log.Error(err)
 	}
 
-	// Create MQ Channel
-	ch, err := CreateMQChannel(mb)
-	if err != nil {
-		Log.Error(err)
-	}
-
 	return &QueueConnection{
-		MQCon:  mb,
-		MQChan: ch,
+		MQCon: mb,
 	}
 }
 
-func CreateMQChannel(cs *amqp.Connection) (c *amqp.Channel, e error) {
+func CreateMQChannel(cs *amqp.Connection) *QueueConnection {
 	ch, err := cs.Channel()
 	if err != nil {
 		log.Panicf("%s: %s", "Failed to open a channel", err)
 	}
-	return ch, err
+	return &QueueConnection{
+		MQChan: ch,
+	}
 }
 
-func CloseChannel(ch *amqp.Connection) (err error) {
-	return ch.Close()
+func (ch *QueueConnection) CloseChannel() (err error) {
+	return ch.MQChan.Close()
+}
+
+func DefineExchange(ch *amqp.Channel, topic string) {
+	err := ch.ExchangeDeclare(
+		topic,   // name
+		"topic", // type
+		true,    // durable
+		false,   // auto-deleted
+		false,   // internal
+		false,   // no-wait
+		nil,     // arguments
+	)
+	if err != nil {
+		log.Panicf("%s: %s", "Failed to open a channel", err)
+	}
+}
+
+func PublishMessage(ch *amqp.Channel, ctx context.Context, topic string, body string) (e error) {
+	err := ch.PublishWithContext(ctx,
+		topic,            // exchange
+		"anonymous.info", // routing key
+		false,            // mandatory
+		false,            // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(body),
+		})
+	return err
 }
