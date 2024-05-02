@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/op/go-logging"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -16,9 +17,11 @@ type IQueue interface {
 	CreateMQChannel(cs *QueueConnection) *QueueConnection
 	CloseMQ() (err error)
 	QueueConnect(host string, port int, username string, password string) *QueueConnection
-	DefineExchange(ch *QueueConnection, topic string)
-	PublishMessage(ch *amqp.Channel, ctx context.Context) (e error)
+	DefineExchange(ch *QueueConnection, topic string) error
+	PublishMessage(ch *amqp.Channel, topic string, body string) (e error)
 	DefineQueue(ch *amqp.Channel) *QueueConnection
+	BindQueue(q *QueueConnection) error
+	MessageConsume(ch *amqp.Channel, q amqp.Queue) (<-chan amqp.Delivery, error)
 }
 
 type QueueConnection struct {
@@ -28,7 +31,7 @@ type QueueConnection struct {
 	password string
 	MQCon    *amqp.Connection
 	MQChan   *amqp.Channel
-	MQueue   *amqp.Queue
+	MQueue   amqp.Queue
 }
 
 func QueueConnect(host string, port int, username string, password string) *QueueConnection {
@@ -82,27 +85,28 @@ func (ch *QueueConnection) CloseChannel() (err error) {
 	return ch.MQChan.Close()
 }
 
-func DefineExchange(ch *amqp.Channel, topic string) {
+func DefineExchange(ch *amqp.Channel, topic string) error {
 	err := ch.ExchangeDeclare(
-		topic,   // name
-		"topic", // type
-		true,    // durable
-		false,   // auto-deleted
-		false,   // internal
-		false,   // no-wait
-		nil,     // arguments
+		topic,    // name
+		"fanout", // type
+		true,     // durable
+		false,    // auto-deleted
+		false,    // internal
+		false,    // no-wait
+		nil,      // arguments
 	)
-	if err != nil {
-		log.Panicf("%s: %s", "Failed to open a channel", err)
-	}
+	return err
 }
 
-func PublishMessage(ch *amqp.Channel, ctx context.Context, topic string, body string) (e error) {
+func PublishMessage(ch *amqp.Channel, topic string, body string) (e error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	err := ch.PublishWithContext(ctx,
-		topic,            // exchange
-		"anonymous.info", // routing key
-		false,            // mandatory
-		false,            // immediate
+		topic, // exchange
+		"",    // routing key
+		false, // mandatory
+		false, // immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
 			Body:        []byte(body),
@@ -127,4 +131,29 @@ func DefineQueue(ch *amqp.Channel) *QueueConnection {
 	return &QueueConnection{
 		MQueue: q,
 	}
+}
+
+func BindQueue(ch *amqp.Channel, q amqp.Queue, topic string) error {
+	err := ch.QueueBind(
+		q.Name, // queue name
+		"",     // routing key
+		topic,  // exchange
+		false,
+		nil,
+	)
+	return err
+}
+
+func MessageConsume(ch *amqp.Channel, q amqp.Queue) (<-chan amqp.Delivery, error) {
+	msgs, err := ch.Consume(
+		q.Name, // queue
+		"",     // consumer
+		true,   // auto ack
+		false,  // exclusive
+		false,  // no local
+		false,  // no wait
+		nil,    // args
+	)
+
+	return msgs, err
 }

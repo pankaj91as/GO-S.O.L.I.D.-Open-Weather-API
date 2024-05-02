@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	"db"
+	"emailapi"
 	"models"
 
 	"github.com/joho/godotenv"
@@ -68,17 +69,26 @@ func main() {
 	//  init Rabbit Queue connection
 	MqConnection := queue.InitQueueConnection(MQhost, MQport, MQusername, MQpassword)
 
-	// Create MQ Channel
-	channel := queue.CreateMQChannel(MqConnection.MQCon)
-	if err != nil {
-		Log.Error(err)
-	}
-
-	// Create Exchange For Message Queue
-	queue.DefineExchange(channel.MQChan, os.Getenv("MQ_TOPIC"))
-
 	// Close Message Queue Connection
 	// defer MqConnection.MQCon.Close()
+
+	// Create MQ Channel
+	channel := queue.CreateMQChannel(MqConnection.MQCon)
+
+	// Create Exchange For Message Queue
+	err = queue.DefineExchange(channel.MQChan, os.Getenv("MQ_TOPIC"))
+	if err != nil {
+		Log.Errorf("%s: %s", "Failed to open a channel", err)
+	}
+
+	// Define Queue
+	q := queue.DefineQueue(channel.MQChan)
+
+	// Bind Queue
+	err = queue.BindQueue(channel.MQChan, q.MQueue, os.Getenv("MQ_TOPIC"))
+	if err != nil {
+		Log.Errorf("%s: %s", "Failed to bind a queue", err)
+	}
 
 	// Print cities
 	for _, city := range citiesArray {
@@ -88,6 +98,21 @@ func main() {
 	}
 
 	wg.Wait()
+
+	msgs, err := queue.MessageConsume(channel.MQChan, q.MQueue)
+	if err != nil {
+		Log.Errorf("%s: %s", "Failed to register a consumer", err)
+	}
+
+	go func() {
+		for d := range msgs {
+			emailapi.EWG.Add(1)
+			go emailapi.SendMail(d.Body)
+			log.Printf(" [x] %s", d.Body)
+		}
+	}()
+
+	emailapi.EWG.Wait()
 }
 
 func createRequiredTables(cs *db.SQLConnection) error {

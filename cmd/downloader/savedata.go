@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,6 +10,7 @@ import (
 
 	"configs"
 	"db"
+	"emailapi"
 	"models"
 	queue "rabbitqueue"
 
@@ -82,12 +82,21 @@ func insertData(dbConnection *db.SQLConnection, weatherCurrentData models.Weathe
 	}
 
 	var weatherSearch []models.WeatherData
-	findResult := ormdb.Where(&models.WeatherData{Lat: weatherCurrentData.Lat, Lon: weatherCurrentData.Lon}).First(&weatherSearch)
+	findResult := ormdb.Where(&models.WeatherData{Lat: weatherCurrentData.Lat, Lon: weatherCurrentData.Lon}).Last(&weatherSearch)
 	if findResult.RowsAffected == 0 {
 		findResult = ormdb.Create(&weatherCurrentData)
 	} else {
-		body := "Hello World!"
-		queue.PublishMessage(MqConnection.MQChan, context.Background(), os.Getenv("MQ_TOPIC"), body)
+		if weatherSearch[0].MainTemp != weatherCurrentData.MainTemp ||
+			weatherSearch[0].WindSpeed != weatherCurrentData.WindSpeed ||
+			weatherSearch[0].CloudsAll != weatherCurrentData.CloudsAll ||
+			weatherSearch[0].Visibility != weatherCurrentData.Visibility {
+
+			// Prepare email body
+			body := emailapi.PrepareBody(weatherSearch)
+
+			// Push Body Content In Message Queue
+			go queue.PublishMessage(MqConnection.MQChan, os.Getenv("MQ_TOPIC"), body)
+		}
 		findResult = ormdb.Model(&models.WeatherData{}).Where("Lat = ?", weatherCurrentData.Lat).Where("Lon = ?", weatherCurrentData.Lon).Updates(&weatherCurrentData)
 	}
 
