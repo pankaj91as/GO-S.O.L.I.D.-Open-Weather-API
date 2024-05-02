@@ -18,6 +18,7 @@ type IQueue interface {
 	QueueConnect(host string, port int, username string, password string) *QueueConnection
 	DefineExchange(ch *QueueConnection, topic string)
 	PublishMessage(ch *amqp.Channel, ctx context.Context) (e error)
+	DefineQueue(ch *amqp.Channel) *QueueConnection
 }
 
 type QueueConnection struct {
@@ -27,6 +28,7 @@ type QueueConnection struct {
 	password string
 	MQCon    *amqp.Connection
 	MQChan   *amqp.Channel
+	MQueue   *amqp.Queue
 }
 
 func QueueConnect(host string, port int, username string, password string) *QueueConnection {
@@ -106,4 +108,23 @@ func PublishMessage(ch *amqp.Channel, ctx context.Context, topic string, body st
 			Body:        []byte(body),
 		})
 	return err
+}
+
+func DefineQueue(ch *amqp.Channel) *QueueConnection {
+	q, err := ch.QueueDeclare(
+		"",    // name
+		false, // durable
+		false, // delete when unused
+		true,  // exclusive
+		false, // no-wait
+		nil,   // arguments
+	)
+
+	if err != nil {
+		log.Panicf("%s: %s", "Failed to declare a queue", err)
+	}
+
+	return &QueueConnection{
+		MQueue: q,
+	}
 }
