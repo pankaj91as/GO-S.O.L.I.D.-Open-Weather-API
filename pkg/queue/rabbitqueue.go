@@ -108,7 +108,7 @@ func PublishMessage(ch *amqp.Channel, topic string, body string) (e error) {
 		false, // mandatory
 		false, // immediate
 		amqp.Publishing{
-			ContentType: "text/plain",
+			ContentType: "text/html",
 			Body:        []byte(body),
 		})
 	return err

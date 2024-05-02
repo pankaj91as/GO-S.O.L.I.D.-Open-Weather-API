@@ -86,6 +86,7 @@ func insertData(dbConnection *db.SQLConnection, weatherCurrentData models.Weathe
 	if findResult.RowsAffected == 0 {
 		findResult = ormdb.Create(&weatherCurrentData)
 	} else {
+		// On wheather change publish message in queue
 		if weatherSearch[0].MainTemp != weatherCurrentData.MainTemp ||
 			weatherSearch[0].WindSpeed != weatherCurrentData.WindSpeed ||
 			weatherSearch[0].CloudsAll != weatherCurrentData.CloudsAll ||

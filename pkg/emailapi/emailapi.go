@@ -8,8 +8,11 @@ import (
 
 	"models"
 
+	"github.com/op/go-logging"
 	"gopkg.in/gomail.v2"
 )
+
+var Log = logging.MustGetLogger("emailapi")
 
 var EWG sync.WaitGroup
 
@@ -22,17 +25,17 @@ type IEmailAPI interface {
 
 func PrepareBody(body []models.WeatherData) string {
 	b := fmt.Sprintf(`Weather Change Detected!
-
-City: %s,
-Temperature: %f,
-temperature Min: %f,
-temperature Max: %f,
-Pressure: %v,
-Feels Like: %f,
-Humidity: %v,
-Wind Speed: %f,
-WindDeg: %v,
-Clouds All: %v,
+<br><br>
+City: %s,<br>
+Temperature: %f,<br>
+temperature Min: %f,<br>
+temperature Max: %f,<br>
+Pressure: %v,<br>
+Feels Like: %f,<br>
+Humidity: %v,<br>
+Wind Speed: %f,<br>
+WindDeg: %v,<br>
+Clouds All: %v,<br>
 Visibility: %v
 
 `, body[0].Name,
@@ -54,8 +57,8 @@ func SendMail(b []byte) {
 	defer EWG.Done()
 
 	m := gomail.NewMessage()
-	m.SetHeader("From", "nextgensoft@zohomail.in")
-	m.SetHeader("To", "pankaj91as@gmail.com")
+	m.SetHeader("From", os.Getenv("SMTP_USER"))
+	m.SetHeader("To", os.Getenv("NOTIFICATION_USERS"))
 	m.SetHeader("Subject", "Weather Update!")
 	m.SetBody("text/html", string(b))
 
@@ -64,6 +67,6 @@ func SendMail(b []byte) {
 
 	// Send the email to Bob, Cora and Dan.
 	if err := d.DialAndSend(m); err != nil {
-		panic(err)
+		Log.Error(err)
 	}
 }

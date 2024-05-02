@@ -104,13 +104,11 @@ func main() {
 		Log.Errorf("%s: %s", "Failed to register a consumer", err)
 	}
 
-	go func() {
-		for d := range msgs {
-			emailapi.EWG.Add(1)
-			go emailapi.SendMail(d.Body)
-			log.Printf(" [x] %s", d.Body)
-		}
-	}()
+	for d := range msgs {
+		emailapi.EWG.Add(1)
+		go emailapi.SendMail(d.Body)
+		log.Printf(" [x] %s", d.Body)
+	}
 
 	emailapi.EWG.Wait()
 }
