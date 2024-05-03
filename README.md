@@ -90,7 +90,7 @@ tail -5 /var/log/open-weather-api-downloader-cron.log
 
 ## Email Notifications
 
-Whenever CRON execute listener listen for update & send emails. You will get notification emails/min to change frequency you need to change fron timing as mentioned above.
+Whenever CRON execute listener listen for update & send emails. You will get notification emails/min to change frequency you need to change CRON timing as mentioned above.
 
 ---
 
