@@ -1,1 +1,1 @@
-* * * * * /usr/src/app/downloader-linux-amd64 -db-host=db -db-port=3306 -db-username=root -db-password=password -database=open_weather >> /var/log/open-weather-api-downloader-cron.log 2>&1
+* * * * * /usr/src/app/downloader-linux-amd64 -db-host=db -db-port=3306 -db-username=root -db-password=password -database=open_weather -mq-host=queue -mq-port=5672 -mq-username=guest -mq-password=guest >> /var/log/open-weather-api-downloader-cron.log 2>&1

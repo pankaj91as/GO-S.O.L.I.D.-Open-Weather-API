@@ -23,9 +23,12 @@ var (
 var Log = logging.MustGetLogger("listener")
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	var err error
+	if os.Getenv("RABBIT_HOST") == "" {
+		err = godotenv.Load("./.env")
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
 	}
 
 	// Command line option for rabbit message que

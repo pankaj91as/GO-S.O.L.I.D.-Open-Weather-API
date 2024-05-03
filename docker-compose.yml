@@ -47,6 +47,8 @@ services:
     container_name: "CRON"
     build:
       dockerfile: ./downloader.Dockerfile
+    env_file:
+      - ./.env
     networks:
       - backend
     depends_on:
@@ -64,6 +66,8 @@ services:
     container_name: "Listener"
     build:
       dockerfile: ./listener.Dockerfile
+    env_file:
+      - ./.env
     networks:
       - backend
     depends_on:
@@ -83,6 +87,8 @@ services:
     container_name: "REST_API"
     build:
       dockerfile: ./service.Dockerfile
+    env_file:
+      - ./.env
     depends_on:
       db:
         condition: service_healthy
