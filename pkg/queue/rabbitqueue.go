@@ -63,7 +63,7 @@ func InitQueueConnection(host string, port int, username string, password string
 	// Connect to MySQL
 	mb, err := connection.ConnectMQ()
 	if err != nil {
-		Log.Error(err)
+		log.Panicf("%s: %s", "Failed to connect rabbit message queue", err)
 	}
 
 	return &QueueConnection{

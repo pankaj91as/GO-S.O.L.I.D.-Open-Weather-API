@@ -87,13 +87,23 @@ func insertData(dbConnection *db.SQLConnection, weatherCurrentData models.Weathe
 		findResult = ormdb.Create(&weatherCurrentData)
 	} else {
 		// On wheather change publish message in queue
-		if weatherSearch[0].MainTemp != weatherCurrentData.MainTemp ||
-			weatherSearch[0].WindSpeed != weatherCurrentData.WindSpeed ||
-			weatherSearch[0].CloudsAll != weatherCurrentData.CloudsAll ||
-			weatherSearch[0].Visibility != weatherCurrentData.Visibility {
+		if (weatherSearch[0].MainTemp != weatherCurrentData.MainTemp) ||
+			(weatherSearch[0].WindSpeed != weatherCurrentData.WindSpeed) ||
+			(weatherSearch[0].CloudsAll != weatherCurrentData.CloudsAll) ||
+			(weatherSearch[0].Visibility != weatherCurrentData.Visibility) {
+
+			Log.Infof(`
+Temperature Previous: %v Current: %v
+Wind Speed Previous: %v Current: %v
+Clouds Previous: %v Current: %v
+Visibility Previous: %v Current: %v
+			`, weatherSearch[0].MainTemp, weatherCurrentData.MainTemp,
+				weatherSearch[0].WindSpeed, weatherCurrentData.WindSpeed,
+				weatherSearch[0].CloudsAll, weatherCurrentData.CloudsAll,
+				weatherSearch[0].Visibility, weatherCurrentData.Visibility)
 
 			// Prepare email body
-			body := emailapi.PrepareBody(weatherSearch)
+			body := emailapi.PrepareBody(weatherCurrentData)
 
 			// Push Body Content In Message Queue
 			go queue.PublishMessage(MqConnection.MQChan, os.Getenv("MQ_TOPIC"), body)
@@ -105,5 +115,5 @@ func insertData(dbConnection *db.SQLConnection, weatherCurrentData models.Weathe
 		fmt.Println(findResult.Error)
 	}
 
-	Log.Info("Data processed successfully...")
+	Log.Info("Data processed successfully...\n\n")
 }

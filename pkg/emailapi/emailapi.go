@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"sync"
 
 	"models"
 
@@ -14,7 +13,7 @@ import (
 
 var Log = logging.MustGetLogger("emailapi")
 
-var EWG sync.WaitGroup
+// var EWG sync.WaitGroup
 
 type IEmailAPI interface {
 	PrepareBody(body []models.WeatherData) string
@@ -23,7 +22,7 @@ type IEmailAPI interface {
 	WaitWG()
 }
 
-func PrepareBody(body []models.WeatherData) string {
+func PrepareBody(body models.WeatherData) string {
 	b := fmt.Sprintf(`Weather Change Detected!
 <br><br>
 City: %s,<br>
@@ -38,23 +37,23 @@ WindDeg: %v,<br>
 Clouds All: %v,<br>
 Visibility: %v
 
-`, body[0].Name,
-		body[0].MainTemp,
-		body[0].MainTempMin,
-		body[0].MainTempMax,
-		body[0].MainPressure,
-		body[0].MainFeelsLike,
-		body[0].MainHumidity,
-		body[0].WindSpeed,
-		body[0].WindDeg,
-		body[0].CloudsAll,
-		body[0].Visibility)
+`, body.Name,
+		body.MainTemp,
+		body.MainTempMin,
+		body.MainTempMax,
+		body.MainPressure,
+		body.MainFeelsLike,
+		body.MainHumidity,
+		body.WindSpeed,
+		body.WindDeg,
+		body.CloudsAll,
+		body.Visibility)
 
 	return b
 }
 
 func SendMail(b []byte) {
-	defer EWG.Done()
+	// defer EWG.Done()
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", os.Getenv("SMTP_USER"))
@@ -69,4 +68,6 @@ func SendMail(b []byte) {
 	if err := d.DialAndSend(m); err != nil {
 		Log.Error(err)
 	}
+
+	Log.Info("Email Notification Sent...")
 }

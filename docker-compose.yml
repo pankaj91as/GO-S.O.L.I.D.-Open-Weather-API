@@ -21,6 +21,28 @@ services:
       timeout: 5s
       retries: 3
 
+  queue:
+    container_name: "RabbitMQ"
+    image: "rabbitmq:management"
+    ports:
+      - 15671:15671
+      - 15672:15672
+      - 15691:15691
+      - 15692:15692
+      - 25672:25672
+      - 4369:4369
+      - 5672:5672
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5672"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   downloader:
     container_name: "CRON"
     build:
@@ -29,6 +51,8 @@ services:
       - backend
     depends_on:
       db:
+        condition: service_healthy
+      queue:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "echo", "Hello"]
@@ -54,22 +78,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-
-  que:
-    container_name: "RabbitMQ"
-    image: "rabbitmq:latest"
-    ports:
-      - 5672:5672
-    depends_on:
-      service:
-        condition: service_healthy
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5672"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   adminer:
     container_name: "Adminer"
