@@ -2,6 +2,7 @@ FROM alpine:latest
 
 WORKDIR /usr/src/app
 
+COPY .env .
 COPY ./cmd/downloader/crontab/open-weather-api-downloader-cron .
 COPY ./cmd/downloader/crontab/entry.sh .
 RUN chmod +x /usr/src/app/entry.sh

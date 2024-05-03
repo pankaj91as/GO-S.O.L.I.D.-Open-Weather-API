@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"sync"
 
 	"models"
 
@@ -13,7 +14,7 @@ import (
 
 var Log = logging.MustGetLogger("emailapi")
 
-// var EWG sync.WaitGroup
+var EWG sync.WaitGroup
 
 type IEmailAPI interface {
 	PrepareBody(body []models.WeatherData) string
@@ -53,7 +54,7 @@ Visibility: %v
 }
 
 func SendMail(b []byte) {
-	// defer EWG.Done()
+	defer EWG.Done()
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", os.Getenv("SMTP_USER"))

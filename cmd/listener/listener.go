@@ -23,7 +23,7 @@ var (
 var Log = logging.MustGetLogger("listener")
 
 func main() {
-	err := godotenv.Load("../../.env")
+	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -67,11 +67,12 @@ func main() {
 
 	var forever chan struct{}
 
-	go func() {
-		for d := range msgs {
-			emailapi.SendMail(d.Body)
-		}
-	}()
+	for d := range msgs {
+		emailapi.EWG.Add(1)
+		go emailapi.SendMail(d.Body)
+	}
+
+	emailapi.EWG.Done()
 
 	<-forever
 }
