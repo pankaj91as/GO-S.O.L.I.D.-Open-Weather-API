@@ -38,10 +38,10 @@ services:
     networks:
       - backend
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5672"]
+      test: rabbitmq-diagnostics -q ping
       interval: 30s
-      timeout: 10s
-      retries: 5
+      timeout: 30s
+      retries: 3
 
   downloader:
     container_name: "CRON"
@@ -60,6 +60,25 @@ services:
       timeout: 5s
       retries: 3
 
+  listener:
+    container_name: "Listener"
+    build:
+      dockerfile: ./listener.Dockerfile
+    networks:
+      - backend
+    depends_on:
+      db:
+        condition: service_healthy
+      queue:
+        condition: service_healthy
+      downloader:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "echo", "Hello"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   service:
     container_name: "REST_API"
     build:
@@ -67,7 +86,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      queue:
+        condition: service_healthy
       downloader:
+        condition: service_healthy
+      listener:
         condition: service_healthy
     ports:
       - 8080:8080
