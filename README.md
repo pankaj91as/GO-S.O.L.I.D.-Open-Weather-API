@@ -47,21 +47,27 @@ Weather API data downloader CRON is available in `cmd/downloader/crontab/open-we
 
 Modify CRON time if required, Current it execute **every min**.
 
-## Step 2 - Generate Linux Build
+## Step 2 - Update Environment Veriables
+
+Update .env file with your SMTP details & notification receivers email.
+
+## Step 3 - Generate Linux Build
 
 ```
 Open-Weather-API % env GOOS=linux GOARCH=amd64 go build -o weatherapi-linux-amd64 .
 Open-Weather-API % cd cmd/downloader
 Open-Weather-API/cmd/downloader % env GOOS=linux GOARCH=amd64 go build -o downloader-linux-amd64 .
+Open-Weather-API/cmd/downloader % cd ../listener
+Open-Weather-API/cmd/listener % env GOOS=linux GOARCH=amd64 go build -o listener-linux-amd64 .
 ```
 
-## Step 3 - Create Docker image from Linux Build
+## Step 4 - Create Docker image from Linux Build
 
 ```
 Open-Weather-API % docker compose up
 ```
 
-## Step 4 - Available Endpoints
+## Step 5 - Available Endpoints
 
 - http://localhost:8080/weather
 - http://localhost:8080/weather/nashik
@@ -82,8 +88,9 @@ tail -5 /var/log/open-weather-api-downloader-cron.log
 - **username:** root
 - **password:** password
 
-<br>
-<br>
+## Email Notifications
+
+Whenever CRON execute listener listen for update & send emails. You will get email/min to change frequency you need to change fron timing as mentioned above.
 
 ---
 
