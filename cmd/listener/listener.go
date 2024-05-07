@@ -69,10 +69,16 @@ func main() {
 	}
 
 	var forever chan struct{}
+	var emailDetails = &emailapi.EmailDetails{}
+	emailDetails.NOTIFICATION_USERS = os.Getenv("NOTIFICATION_USERS")
+	emailDetails.SMTP_HOST = os.Getenv("SMTP_HOST")
+	emailDetails.SMTP_PASSWORD = os.Getenv("SMTP_PASSWORD")
+	emailDetails.SMTP_PORT = os.Getenv("SMTP_PORT")
+	emailDetails.SMTP_USER = os.Getenv("SMTP_USER")
 
 	for d := range msgs {
 		emailapi.EWG.Add(1)
-		go emailapi.SendMail(d.Body)
+		go emailapi.SendMail(d.Body, emailDetails)
 	}
 
 	emailapi.EWG.Done()

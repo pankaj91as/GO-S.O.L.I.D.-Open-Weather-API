@@ -2,7 +2,6 @@ package emailapi
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"sync"
 
@@ -11,6 +10,14 @@ import (
 	"github.com/op/go-logging"
 	"gopkg.in/gomail.v2"
 )
+
+type EmailDetails struct {
+	SMTP_USER          string
+	NOTIFICATION_USERS string
+	SMTP_PORT          string
+	SMTP_HOST          string
+	SMTP_PASSWORD      string
+}
 
 var Log = logging.MustGetLogger("emailapi")
 
@@ -53,22 +60,22 @@ Visibility: %v
 	return b
 }
 
-func SendMail(b []byte) {
+func SendMail(b []byte, smtp *EmailDetails) {
 	defer EWG.Done()
 
 	m := gomail.NewMessage()
-	m.SetHeader("From", os.Getenv("SMTP_USER"))
-	m.SetHeader("To", os.Getenv("NOTIFICATION_USERS"))
+	m.SetHeader("From", smtp.SMTP_USER)
+	m.SetHeader("To", smtp.NOTIFICATION_USERS)
 	m.SetHeader("Subject", "Weather Update!")
 	m.SetBody("text/html", string(b))
 
-	port, _ := strconv.Atoi(os.Getenv("SMTP_PORT"))
-	d := gomail.NewDialer(os.Getenv("SMTP_HOST"), port, os.Getenv("SMTP_USER"), os.Getenv("SMTP_PASSWORD"))
+	port, _ := strconv.Atoi(smtp.SMTP_PORT)
+	d := gomail.NewDialer(smtp.SMTP_HOST, port, smtp.SMTP_USER, smtp.SMTP_PASSWORD)
 
 	// Send the email to Bob, Cora and Dan.
 	if err := d.DialAndSend(m); err != nil {
 		Log.Error(err)
+	} else {
+		Log.Info("Email Notification Sent...")
 	}
-
-	Log.Info("Email Notification Sent...")
 }
